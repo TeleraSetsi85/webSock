@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'nonce-abc123'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="main.css">
+  <title>Image Upload</title>
+</head>
+
+<body>
+  <div id="drop-zone">
+    <p>Drop your image here</p>
+  </div>
+
+  <div id="container">
+    <h1>Image Upload</h1>
+    <div id="zone">
+      <p>Drag and drop an image<br>or</p>
+      <button id="upload-btn">Select an image</button>
+      <input type="file" id="file-input" accept="image/*" hidden>
+      <div id="size-limit">Maximum allowed size: 2MB</div>
+    </div>
+    <div id="zone-preview" style="display: none;">
+      <div id="loader" style="display: none;"></div>
+      <img id="preview" alt="Image Preview">
+      <div id="actions">
+        <button id="btn-cancel" class="btn">Cancel</button>
+        <button id="btn-accept" class="btn">Accept</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script nonce="abc123">
+    (function () {
+      'use strict';
+
+      document.addEventListener('DOMContentLoaded', function () {
+        const dropZone = document.getElementById('drop-zone'),
+          fileInput = document.getElementById('file-input'),
+          loader = document.getElementById('loader'),
+          preview = document.getElementById('preview'),
+          actions = document.getElementById('actions'),
+          uploadBtn = document.getElementById('upload-btn'),
+          btnAccept = document.getElementById('btn-accept'),
+          btnCancel = document.getElementById('btn-cancel'),
+          zone = document.getElementById('zone'),
+          sizeLimit = document.getElementById('size-limit'),
+          zonePreview = document.getElementById('zone-preview'),
+          MAX_SIZE = 2 * 1024 * 1024;
+
+        let selectedFile = null;
+
+        function toggleDropZone(show) {
+          dropZone.style.display = show ? 'flex' : 'none';
+        }
+
+        window.addEventListener('dragover', function (e) {
+          e.preventDefault();
+          toggleDropZone(true);
+        });
+
+        window.addEventListener('dragleave', function (e) {
+          e.preventDefault();
+          if (!e.relatedTarget || e.relatedTarget === document.documentElement) {
+            toggleDropZone(false);
+          }
+        });
+
+        window.addEventListener('drop', function (e) {
+          e.preventDefault();
+          toggleDropZone(false);
+          processFile(e.dataTransfer.files[0]);
+        });
+
+        uploadBtn.addEventListener('click', function () {
+          fileInput.click();
+        });
+
+        fileInput.addEventListener('change', function (e) {
+          processFile(e.target.files[0]);
+        });
+
+        function processFile(file) {
+          if (!file || file.size > MAX_SIZE) {
+            alert(file ? 'File exceeds 2MB limit.' : 'Invalid file.');
+            reset();
+            return;
+          }
+          selectedFile = file;
+
+          zone.style.display = 'none';
+          sizeLimit.style.display = 'none';
+          zonePreview.style.display = 'grid';
+
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            actions.style.display = 'flex';
+          };
+          reader.readAsDataURL(file);
+        }
+
+        btnCancel.addEventListener('click', function () {
+          window.location.reload();
+        });
+
+        btnAccept.addEventListener('click', async function () {
+          if (!selectedFile) {
+            alert("No image selected.");
+            return;
+          }
+
+          loader.style.display = 'block';
+          preview.style.display = 'none';
+          actions.style.display = 'none';
+
+          const formData = new FormData();
+          formData.append("image", selectedFile);
+          try {
+            const response = await fetch("/upload", {
+              method: "POST",
+              body: formData
+            });
+            const result = await response.json();
+            loader.style.display = 'none';
+            actions.style.display = 'flex';
+            alert(result.message || "Image uploaded successfully!");
+            window.location.reload();
+          } catch (error) {
+            loader.style.display = 'none';
+            actions.style.display = 'flex';
+            alert("Error uploading image.");
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+
+</html>
