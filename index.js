@@ -1,13 +1,11 @@
 import express from "express";
 import path from "path";
 import fs from "fs";
-import dotenv from "dotenv";
 import { Server } from "socket.io";
 import multer from "multer";
 import * as zl from "zip-lib";
 
 const app = express();
-dotenv.config();
 const __dirname = path.resolve();
 const uploadPath = path.join(__dirname, "public/uploads");
 
@@ -70,7 +68,7 @@ app.post("/upload", upload.single("image"), (req, res) => {
 
   io.sockets.emit("images:show", filePath);
 
-  res.json({ message: "Uploaded successfully", file: filePath });
+  res.status(200).json({ message: "Uploaded successfully" });
 });
 
 app.get("/download", async (req, res) => {
