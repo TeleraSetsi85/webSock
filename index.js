@@ -1,11 +1,15 @@
 import express from "express";
 import path from "path";
 import fs from "fs";
+import dotenv from "dotenv";
 import { Server } from "socket.io";
 import multer from "multer";
+import * as zl from "zip-lib";
 
 const app = express();
+dotenv.config();
 const __dirname = path.resolve();
+const uploadPath = path.join(__dirname, "public/uploads");
 
 // settings
 app.set("port", process.env.PORT || 3000);
@@ -15,9 +19,9 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // multer
 const storage = multer.diskStorage({
-  destination: path.join(__dirname, "public/uploads"),
+  destination: uploadPath,
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const uniqueSuffix = getDate() + "_" + Math.round(Math.random() * 1e9);
     cb(null, uniqueSuffix + path.extname(file.originalname));
   },
 });
@@ -33,7 +37,6 @@ const io = new Server(server);
 io.on("connection", (socket) => {
   console.log("New connection", socket.id);
 
-  const uploadPath = path.join(__dirname, "public/uploads");
   fs.readdir(uploadPath, (err, files) => {
     if (err) {
       console.error("Error reading uploads folder:", err);
@@ -48,6 +51,10 @@ io.on("connection", (socket) => {
 // routes
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public/index.html"));
+});
+
+app.get("/show", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/show.html"));
 });
 
 app.get("/upload", (req, res) => {
@@ -65,3 +72,34 @@ app.post("/upload", upload.single("image"), (req, res) => {
 
   res.json({ message: "Uploaded successfully", file: filePath });
 });
+
+app.get("/download", async (req, res) => {
+  try {
+    if (!fs.existsSync(uploadPath) || fs.readdirSync(uploadPath).length === 0) {
+      return res.status(400).json({ error: "No images available" });
+    }
+
+    const zipPath = path.join(uploadPath, "backup.zip");
+    zl.archiveFolder(uploadPath, zipPath).then(() => {
+      res.download(zipPath, `backup_${getDate()}.zip`, (err) => {
+        if (!err) fs.unlinkSync(zipPath);
+        else res.status(500).json({ error: "Error downloading the file" });
+      });
+    });
+  } catch (error) {
+    console.error("Download error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Date function
+const getDate = () => {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  const year = now.getFullYear();
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
+  return `${month}-${day}-${year}_${hours}-${minutes}-${seconds}`;
+};

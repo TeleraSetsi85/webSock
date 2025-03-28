@@ -5,30 +5,30 @@
   <meta charset="UTF-8">
   <meta http-equiv="Content-Security-Policy"
     content="default-src 'self'; script-src 'self' 'nonce-abc123'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="stylesheet" href="main.css">
-  <title>Image Upload</title>
+  <title>Sube tus imágenes</title>
 </head>
 
 <body>
   <div id="drop-zone">
-    <p>Drop your image here</p>
+    <p>Suelta tu imagen aquí</p>
   </div>
 
   <div id="container">
-    <h1>Image Upload</h1>
+    <h1>Sube una imagen</h1>
     <div id="zone">
-      <p>Drag and drop an image<br>or</p>
-      <button id="upload-btn">Select an image</button>
+      <p>Arrastra y suelta una imagen<br>or</p>
+      <button id="upload-btn">Selecciona una imagen</button>
       <input type="file" id="file-input" accept="image/*" hidden>
-      <div id="size-limit">Maximum allowed size: 2MB</div>
+      <div id="size-limit">Tamaño máximo permitido: 2MB</div>
     </div>
     <div id="zone-preview" style="display: none;">
       <div id="loader" style="display: none;"></div>
       <img id="preview" alt="Image Preview">
       <div id="actions">
-        <button id="btn-cancel" class="btn">Cancel</button>
-        <button id="btn-accept" class="btn">Accept</button>
+        <button id="btn-cancel" class="btn">Cancelar</button>
+        <button id="btn-accept" class="btn">Aceptar</button>
       </div>
     </div>
   </div>
@@ -116,6 +116,7 @@
           }
 
           loader.style.display = 'block';
+          document.querySelector("h1").style.display = 'none';
           preview.style.display = 'none';
           actions.style.display = 'none';
 
@@ -129,12 +130,13 @@
             const result = await response.json();
             loader.style.display = 'none';
             actions.style.display = 'flex';
-            alert(result.message || "Image uploaded successfully!");
+
+            alert("Imagen subida correctamente!");
             window.location.reload();
           } catch (error) {
             loader.style.display = 'none';
             actions.style.display = 'flex';
-            alert("Error uploading image.");
+            alert("Error al subir tu imagen. Intenta nuevamente.");
           }
         });
       });

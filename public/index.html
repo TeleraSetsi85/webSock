@@ -7,98 +7,25 @@
     content="default-src 'self'; script-src 'self' 'nonce-abc123'; style-src 'self'; img-src 'self' data:;">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="main.css">
-  <title>Show</title>
+  <title>Inicio</title>
 </head>
 
 <body>
-  <div class="images">
-    <img src="img/preview.webp" alt="image" id="image">
+  <header>
+    <h1>Empresa</h1>
+    <a href="/download">Descargar Imágenes</a>
+  </header>
+
+  <div class="links">
+    <a href="/show">
+      <img src="img/picture.webp" alt="Icono">
+      <h3>Mostrar Imágenes</h3>
+    </a>
+    <a href="/upload">
+      <img src="img/photo.webp" alt="Icono">
+      <h3>Subir Imágenes</h3>
+    </a>
   </div>
-
-  <script src="/socket.io/socket.io.js"></script>
-  <script nonce="abc123">
-    (function () {
-      'use strict';
-
-      document.addEventListener('DOMContentLoaded', () => {
-        const socket = io();
-        let images = [];
-        let index = 0;
-        let intervalId;
-        let newImagesQueue = [];
-
-        const imageElement = document.getElementById('image');
-        if (!imageElement) {
-          console.error("Image element not found");
-          return;
-        }
-
-        socket.on('connect', () => {
-          console.log('Connected');
-        });
-
-        socket.on('images:all', (data) => {
-          if (Array.isArray(data) && data.length > 0) {
-            images = data.filter(url => validateUrl(url));
-            if (images.length > 0) {
-              imageElement.src = images[0];
-              index = 1;
-              if (images.length > 1) {
-                startSlideshow();
-              }
-            } else {
-              imageElement.src = "img/preview.webp";
-            }
-          } else {
-            imageElement.src = "img/preview.webp";
-          }
-        });
-
-        socket.on('images:show', (newImage) => {
-          if (typeof newImage === 'string' && validateUrl(newImage)) {
-            if (!images.includes(newImage)) {
-              images.push(newImage);
-            }
-            newImagesQueue.push(newImage);
-            if (images.length === 1) {
-              imageElement.src = newImage;
-            }
-            if (images.length > 1 && !intervalId) {
-              startSlideshow();
-            }
-          } else {
-            console.warn("Invalid URL");
-          }
-        });
-
-        function startSlideshow() {
-          if (intervalId) clearInterval(intervalId);
-          intervalId = setInterval(() => {
-            imageElement.classList.remove('fade'); // Remove the fade class to reset opacity
-
-            if (newImagesQueue.length > 0) {
-              imageElement.src = newImagesQueue.shift();
-            } else {
-              imageElement.src = images[index];
-              index = (index + 1) % images.length;
-            }
-
-            void imageElement.offsetWidth; // Trigger a reflow to reset the transition
-            imageElement.classList.add('fade'); // Add the fade class to trigger the transition
-          }, 3000);
-        }
-
-        function validateUrl(url) {
-          try {
-            new URL(url, window.location.href);
-            return true;
-          } catch (e) {
-            return false;
-          }
-        }
-      });
-    })();
-  </script>
 </body>
 
 </html>
