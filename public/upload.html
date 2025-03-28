@@ -86,7 +86,7 @@
 
         function processFile(file) {
           if (!file || file.size > MAX_SIZE) {
-            alert(file ? 'File exceeds 2MB limit.' : 'Invalid file.');
+            alert(file ? 'File exceeds 2MB limit.' : 'Invalid file.'); /////////////////////////////////////
             reset();
             return;
           }
@@ -111,7 +111,7 @@
 
         btnAccept.addEventListener('click', async function () {
           if (!selectedFile) {
-            alert("No image selected.");
+            alert("No image selected."); /////////////////////////////////////
             return;
           }
 
@@ -131,12 +131,12 @@
             loader.style.display = 'none';
             actions.style.display = 'flex';
 
-            alert("Imagen subida correctamente!");
+            alert("Imagen subida correctamente!"); /////////////////////////////////////
             window.location.reload();
           } catch (error) {
             loader.style.display = 'none';
             actions.style.display = 'flex';
-            alert("Error al subir tu imagen. Intenta nuevamente.");
+            alert("Error al subir tu imagen. Intenta nuevamente."); /////////////////////////////////////
           }
         });
       });

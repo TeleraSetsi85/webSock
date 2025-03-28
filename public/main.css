@@ -33,8 +33,10 @@ header {
   padding: 1rem 2rem;
 }
 
-header a {
+header button {
   text-decoration: none;
+  border: none;
+  cursor: pointer;
   background-color: #d8abc2;
   color: white;
   padding: 0.5rem 1rem;

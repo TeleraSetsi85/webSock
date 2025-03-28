@@ -21,7 +21,7 @@
       'use strict';
 
       document.addEventListener('DOMContentLoaded', () => {
-        alert("Doble clic para entrar y salir del modo pantalla completa");
+        alert("Doble clic para entrar y salir del modo pantalla completa"); /////////////////////////////////////
 
         const socket = io();
         const imageElement = document.getElementById('image');
@@ -61,7 +61,7 @@
               updateImage(imagesList[currentIndex]);
               currentIndex = (currentIndex + 1) % imagesList.length;
             }
-          }, 3000);
+          }, 8000);
         };
 
         socket.on('connect', () => {

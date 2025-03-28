@@ -13,7 +13,7 @@
 <body>
   <header>
     <h1>Empresa</h1>
-    <a href="/download">Descargar Imágenes</a>
+    <button id="btnDownload">Descargar Imágenes</button>
   </header>
 
   <div class="links">
@@ -26,6 +26,21 @@
       <h3>Subir Imágenes</h3>
     </a>
   </div>
+
+  <script nonce="abc123">
+    document.getElementById("btnDownload").onclick = async () => {
+      try {
+        const response = await fetch("/download", {
+          method: "GET"
+        })
+
+        if (response.status == 400) alert("No hay imágenes disponibles") /////////////////////////////////////
+        else window.location.href = "/download";
+      } catch (error) {
+        console.error(error)
+      }
+    }
+  </script>
 </body>
 
 </html>
