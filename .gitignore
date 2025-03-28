@@ -25,4 +25,4 @@ Thumbs.db
 *.iml
 
 # Ignore images
-.public/uploads/
+public/uploads/
