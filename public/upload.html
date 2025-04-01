@@ -6,7 +6,8 @@
   <meta http-equiv="Content-Security-Policy"
     content="default-src 'self'; script-src 'self' 'nonce-abc123'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <link rel="stylesheet" href="main.css">
+  <link rel="stylesheet" href="styles/upload.css">
+
   <title>Sube tus imágenes</title>
 </head>
 
@@ -18,7 +19,7 @@
   <div id="container">
     <h1>Sube una imagen</h1>
     <div id="zone">
-      <p>Arrastra y suelta una imagen<br>or</p>
+      <p>Arrastra y suelta una imagen<br>o</p>
       <button id="upload-btn">Selecciona una imagen</button>
       <input type="file" id="file-input" accept="image/*" hidden>
       <div id="size-limit">Tamaño máximo permitido: 2MB</div>
@@ -34,6 +35,8 @@
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" nonce="abc123"></script>
+
   <script nonce="abc123">
     (function () {
       'use strict';
@@ -86,7 +89,15 @@
 
         function processFile(file) {
           if (!file || file.size > MAX_SIZE) {
-            alert(file ? 'File exceeds 2MB limit.' : 'Invalid file.'); /////////////////////////////////////
+            if(file){
+              Swal.fire({
+                title: 'Alerta',
+                text: file ? 'Excede el límite de 2MB' : 'Archivo inválido',
+                icon: 'warning'
+              }).then(() => {
+                window.location.reload();
+              });
+            } /////////////////////////////////////
             reset();
             return;
           }
@@ -110,35 +121,52 @@
         });
 
         btnAccept.addEventListener('click', async function () {
-          if (!selectedFile) {
-            alert("No image selected."); /////////////////////////////////////
-            return;
-          }
-
-          loader.style.display = 'block';
-          document.querySelector("h1").style.display = 'none';
-          preview.style.display = 'none';
-          actions.style.display = 'none';
-
-          const formData = new FormData();
-          formData.append("image", selectedFile);
-          try {
-            const response = await fetch("/upload", {
-              method: "POST",
-              body: formData
-            });
-            const result = await response.json();
-            loader.style.display = 'none';
-            actions.style.display = 'flex';
-
-            alert("Imagen subida correctamente!"); /////////////////////////////////////
-            window.location.reload();
-          } catch (error) {
-            loader.style.display = 'none';
-            actions.style.display = 'flex';
-            alert("Error al subir tu imagen. Intenta nuevamente."); /////////////////////////////////////
-          }
+    if (!selectedFile) {
+        Swal.fire({
+            title: 'Alerta',
+            text: 'Imagen no seleccionada',
+            icon: 'warning'
         });
+        return;
+    }
+
+    loader.style.display = 'block';
+    document.querySelector("h1").style.display = 'none';
+    preview.style.display = 'none';
+    actions.style.display = 'none';
+
+    const formData = new FormData();
+    formData.append("image", selectedFile);
+
+    try {
+        const response = await fetch("/upload", {
+            method: "POST",
+            body: formData
+        });
+        const result = await response.json();
+        loader.style.display = 'none';
+        actions.style.display = 'flex';
+
+        Swal.fire({
+            icon: 'success', 
+            text: 'Imagen subida correctamente'
+        }).then(() => {
+            window.location.reload(); 
+        });
+
+    } catch (error) {
+        loader.style.display = 'none';
+        actions.style.display = 'flex';
+        Swal.fire({
+            title: 'Alerta',
+            text: 'Ocurrió un error al subir la imagen',
+            icon: 'error'
+        }).then(() => {
+            window.location.reload();
+        });
+        }
+    });
+
       });
     })();
   </script>

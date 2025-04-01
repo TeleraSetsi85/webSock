@@ -16,12 +16,16 @@
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" nonce="abc123"></script>
   <script nonce="abc123">
     (function () {
       'use strict';
 
       document.addEventListener('DOMContentLoaded', () => {
-        alert("Doble clic para entrar y salir del modo pantalla completa"); /////////////////////////////////////
+        Swal.fire({
+          text: 'Doble click para ampliar la pantalla',
+          icon: 'info'
+        }); /////////////////////////////////////
 
         const socket = io();
         const imageElement = document.getElementById('image');
