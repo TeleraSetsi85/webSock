@@ -366,4 +366,22 @@ header a:hover {
     font-size: 1.5em;
     text-align: center;
   }
+
+  #btnDownload{
+    padding: 10px;
+    margin: 10px;
+  }
+
+  #kar{
+    font-size: 1.5rem;
+  }
+}
+
+
+#logo{
+  max-width: 100%;
+  height: auto;
+  width: 100px;
+  margin: 10px;
+  border-radius: 3px;
 }
